@@ -146,30 +146,4 @@ public partial class Player : MonoBehaviour
     //        return m_vRay_Up_Distance;
     //    }
     //}
-
-    private void OnDrawGizmos()
-    {
-        //// Ray_Down
-        //if (m_bRay_Down == true)
-        //{
-        //    Gizmos.color = Color.red;
-        //    Gizmos.DrawRay(this.transform.position, m_vRay_Down * 1f);
-        //}
-        //else
-        //{
-        //    Gizmos.color = Color.white;
-        //    Gizmos.DrawRay(this.transform.position, m_vRay_Down * 1f);
-        //}
-        // Ray_Up
-        if (m_bRay_Up == true)
-        {
-            Gizmos.color = Color.red;
-            Gizmos.DrawRay(this.transform.position, m_vRay_Up * 1.5f);
-        }
-        else
-        {
-            Gizmos.color = Color.white;
-            Gizmos.DrawRay(this.transform.position, m_vRay_Up * 1.5f);
-        }
-    }
 }

@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public enum E_MOVE_TYPE { P_IDLE, P_IDLE_AIM, P_WALK, P_WALK_AIM, P_WALK_LEFT, P_WALK_LEFT_AIM, P_WALK_RIGHT, P_WALK_RIGHT_AIM, P_RUN, P_RUN_AIM , P_PUSH }//, , P_PUSH, P_JUMP }
+public enum E_PLAYER_MOVE_TYPE { P_IDLE, P_IDLE_AIM, P_WALK, P_WALK_AIM, P_WALK_LEFT, P_WALK_LEFT_AIM, P_WALK_RIGHT, P_WALK_RIGHT_AIM, P_RUN, P_RUN_AIM , P_PUSH }//, P_JUMP }
 public enum E_AIM_TYPE { TRUE, FALSE }
 public enum E_MOVE_VALUE { V_MINUS, V_ZERO, V_PLUS }
 
@@ -19,7 +19,7 @@ public partial class Player : MonoBehaviour
     [SerializeField] private Vector3 m_v_Dir_Move;
 
     // Player_Move
-    public E_MOVE_TYPE m_eMove_Type;
+    public E_PLAYER_MOVE_TYPE m_eMove_Type;
     public E_AIM_TYPE m_eAim_Type;
     private float m_fSpeed_Walk;
     private float m_fSpeed_Run;
@@ -42,6 +42,9 @@ public partial class Player : MonoBehaviour
     public Material m_mt_Material_Hit_true;  // m_r_Player_Move_1 와 접촉한 매쉬의 메테리얼
     public Material m_mt_Material_Hit_false; // m_r_Player_Move_1 와 접촉하지 않은 매쉬의 메테리얼
     public GameObject m_gm_Hit;              // m_r_Player_Move_1 와 접촉한 게임 오브젝트(매쉬를 가지고 있는)
+
+    // Player_Attack(Fire)
+    public ParticleSystem m_Effect_MFlash_1;
 
     public static Player I_Player
     {
@@ -67,10 +70,15 @@ public partial class Player : MonoBehaviour
             Destroy(S_Player);
         }
 
+        //Time.timeScale = 0.5f;
+    }
+
+    private void Start()
+    {
         InitialSet_Player_Animation();
         InitialSet_Player_Ray();
 
-        m_eMove_Type = E_MOVE_TYPE.P_IDLE;
+        m_eMove_Type = E_PLAYER_MOVE_TYPE.P_IDLE;
         m_eAim_Type = E_AIM_TYPE.FALSE;
 
         m_fSpeed_Walk = 2f;
@@ -87,8 +95,6 @@ public partial class Player : MonoBehaviour
         m_g_Dir_Back = this.gameObject.transform.Find("Dir_Back").gameObject;
         m_g_Dir_Right = this.gameObject.transform.Find("Dir_Right").gameObject;
         m_g_Dir_Left = this.gameObject.transform.Find("Dir_Left").gameObject;
-
-        //Time.timeScale = 0.5f;
     }
 
     // Update is called once per frame
@@ -149,16 +155,31 @@ public partial class Player : MonoBehaviour
             m_eAim_Type = E_AIM_TYPE.FALSE;
         }
 
+        // FIRE
+        if (Input.GetMouseButton(0))
+        {
+            if (m_eMove_Type != E_PLAYER_MOVE_TYPE.P_PUSH)// && m_eMove_Type != E_PLAYER_MOVE_TYPE.JUMP)
+            {
+                m_eAim_Type = E_AIM_TYPE.TRUE;
+
+                m_Effect_MFlash_1.Play();
+            }
+        }
+        if (Input.GetMouseButtonUp(0) && !Input.GetMouseButton(1))
+        {
+            m_eAim_Type = E_AIM_TYPE.FALSE;
+        }
+
         // PUSH
         if (Input.GetKeyDown(KeyCode.F))
         {
-            if (m_eMove_Type != E_MOVE_TYPE.P_PUSH)// && m_eMove_Type != E_MOVE_TYPE.JUMP)
+            if (m_eMove_Type != E_PLAYER_MOVE_TYPE.P_PUSH)// && m_eMove_Type != E_PLAYER_MOVE_TYPE.JUMP)
             {
-                m_eMove_Type = Set_PlayerMoveType(E_MOVE_TYPE.P_PUSH);
+                m_eMove_Type = Set_PlayerMoveType(E_PLAYER_MOVE_TYPE.P_PUSH);
             }
         }
 
-        if (m_eMove_Type != E_MOVE_TYPE.P_PUSH)// && m_eMove_Type != E_MOVE_TYPE.JUMP)
+        if (m_eMove_Type != E_PLAYER_MOVE_TYPE.P_PUSH)// && m_eMove_Type != E_PLAYER_MOVE_TYPE.JUMP)
             Player_Move();
         //Player_Move_Check_Collider();
 
@@ -169,7 +190,6 @@ public partial class Player : MonoBehaviour
         //}
         this.transform.position += Check_Ray();
     }
-    [SerializeField] Vector3 m_vTest;
 
     void Player_Move()
     {
@@ -179,18 +199,18 @@ public partial class Player : MonoBehaviour
             if (m_bInput_GetKey_Shift == true)
             {
                 if (m_eAim_Type == E_AIM_TYPE.FALSE)
-                    m_eMove_Type = Set_PlayerMoveType(E_MOVE_TYPE.P_RUN);
+                    m_eMove_Type = Set_PlayerMoveType(E_PLAYER_MOVE_TYPE.P_RUN);
                 else if (m_eAim_Type == E_AIM_TYPE.TRUE)
-                    m_eMove_Type = Set_PlayerMoveType(E_MOVE_TYPE.P_RUN_AIM);
+                    m_eMove_Type = Set_PlayerMoveType(E_PLAYER_MOVE_TYPE.P_RUN_AIM);
 
                 this.transform.position += (m_g_Dir_Front.transform.position - this.transform.position).normalized * Time.deltaTime * m_fSpeed_Run;
             }
             else
             {
                 if (m_eAim_Type == E_AIM_TYPE.FALSE)
-                    m_eMove_Type = Set_PlayerMoveType(E_MOVE_TYPE.P_WALK);
+                    m_eMove_Type = Set_PlayerMoveType(E_PLAYER_MOVE_TYPE.P_WALK);
                 else if (m_eAim_Type == E_AIM_TYPE.TRUE)
-                    m_eMove_Type = Set_PlayerMoveType(E_MOVE_TYPE.P_WALK_AIM);
+                    m_eMove_Type = Set_PlayerMoveType(E_PLAYER_MOVE_TYPE.P_WALK_AIM);
 
                 this.transform.position += (m_g_Dir_Front.transform.position - this.transform.position).normalized * Time.deltaTime * m_fSpeed_Walk;
             }
@@ -200,18 +220,18 @@ public partial class Player : MonoBehaviour
             if (m_bInput_GetKey_Shift == true)
             {
                 if (m_eAim_Type == E_AIM_TYPE.FALSE)
-                    m_eMove_Type = Set_PlayerMoveType(E_MOVE_TYPE.P_RUN);
+                    m_eMove_Type = Set_PlayerMoveType(E_PLAYER_MOVE_TYPE.P_RUN);
                 else if (m_eAim_Type == E_AIM_TYPE.TRUE)
-                    m_eMove_Type = Set_PlayerMoveType(E_MOVE_TYPE.P_RUN_AIM);
+                    m_eMove_Type = Set_PlayerMoveType(E_PLAYER_MOVE_TYPE.P_RUN_AIM);
 
                 this.transform.position += ((m_g_Dir_Front.transform.position + m_g_Dir_Right.transform.position) / 2 - this.transform.position).normalized * Time.deltaTime * m_fSpeed_Run * 0.75f;
             }
             else
             {
                 if (m_eAim_Type == E_AIM_TYPE.FALSE)
-                    m_eMove_Type = Set_PlayerMoveType(E_MOVE_TYPE.P_WALK_RIGHT);
+                    m_eMove_Type = Set_PlayerMoveType(E_PLAYER_MOVE_TYPE.P_WALK_RIGHT);
                 else if (m_eAim_Type == E_AIM_TYPE.TRUE)
-                    m_eMove_Type = Set_PlayerMoveType(E_MOVE_TYPE.P_WALK_RIGHT_AIM);
+                    m_eMove_Type = Set_PlayerMoveType(E_PLAYER_MOVE_TYPE.P_WALK_RIGHT_AIM);
 
                 this.transform.position += ((m_g_Dir_Front.transform.position + m_g_Dir_Right.transform.position) / 2 - this.transform.position).normalized * Time.deltaTime * m_fSpeed_Walk * 0.75f;
             }
@@ -221,18 +241,18 @@ public partial class Player : MonoBehaviour
             if (m_bInput_GetKey_Shift == true)
             {
                 if (m_eAim_Type == E_AIM_TYPE.FALSE)
-                    m_eMove_Type = Set_PlayerMoveType(E_MOVE_TYPE.P_RUN);
+                    m_eMove_Type = Set_PlayerMoveType(E_PLAYER_MOVE_TYPE.P_RUN);
                 else if (m_eAim_Type == E_AIM_TYPE.TRUE)
-                    m_eMove_Type = Set_PlayerMoveType(E_MOVE_TYPE.P_RUN_AIM);
+                    m_eMove_Type = Set_PlayerMoveType(E_PLAYER_MOVE_TYPE.P_RUN_AIM);
 
                 this.transform.position += (m_g_Dir_Right.transform.position - this.transform.position).normalized * Time.deltaTime * m_fSpeed_Run;
             }
             else
             {
                 if (m_eAim_Type == E_AIM_TYPE.FALSE)
-                    m_eMove_Type = Set_PlayerMoveType(E_MOVE_TYPE.P_WALK_RIGHT);
+                    m_eMove_Type = Set_PlayerMoveType(E_PLAYER_MOVE_TYPE.P_WALK_RIGHT);
                 else if (m_eAim_Type == E_AIM_TYPE.TRUE)
-                    m_eMove_Type = Set_PlayerMoveType(E_MOVE_TYPE.P_WALK_RIGHT_AIM);
+                    m_eMove_Type = Set_PlayerMoveType(E_PLAYER_MOVE_TYPE.P_WALK_RIGHT_AIM);
 
                 this.transform.position += (m_g_Dir_Right.transform.position - this.transform.position).normalized * Time.deltaTime * m_fSpeed_Walk;
             }
@@ -241,15 +261,15 @@ public partial class Player : MonoBehaviour
         {
             //if (m_bInput_GetKey_Shift == true)
             //{
-            //    m_eMove_Type = Set_PlayerMoveType(E_MOVE_TYPE.P_RUN);
+            //    m_eMove_Type = Set_PlayerMoveType(E_PLAYER_MOVE_TYPE.P_RUN);
             //    this.transform.position += ((m_g_Dir_Back.transform.position + m_g_Dir_Right.transform.position) / 2 - this.transform.position).normalized * Time.deltaTime * m_fSpeed_Run * 0.75f;
             //}
             //else
             {
                 if (m_eAim_Type == E_AIM_TYPE.FALSE)
-                    m_eMove_Type = Set_PlayerMoveType(E_MOVE_TYPE.P_WALK_RIGHT);
+                    m_eMove_Type = Set_PlayerMoveType(E_PLAYER_MOVE_TYPE.P_WALK_RIGHT);
                 else if (m_eAim_Type == E_AIM_TYPE.TRUE)
-                    m_eMove_Type = Set_PlayerMoveType(E_MOVE_TYPE.P_WALK_RIGHT_AIM);
+                    m_eMove_Type = Set_PlayerMoveType(E_PLAYER_MOVE_TYPE.P_WALK_RIGHT_AIM);
 
                 this.transform.position += ((m_g_Dir_Back.transform.position + m_g_Dir_Right.transform.position) / 2 - this.transform.position).normalized * Time.deltaTime * m_fSpeed_Walk * 0.75f;
             }
@@ -258,15 +278,15 @@ public partial class Player : MonoBehaviour
         {
             //if (m_bInput_GetKey_Shift == true)
             //{
-            //    m_eMove_Type = Set_PlayerMoveType(E_MOVE_TYPE.P_RUN);
+            //    m_eMove_Type = Set_PlayerMoveType(E_PLAYER_MOVE_TYPE.P_RUN);
             //    this.transform.position += (m_g_Dir_Back.transform.position - this.transform.position).normalized * Time.deltaTime * m_fSpeed_Run;
             //}
             //else
             {
                 if (m_eAim_Type == E_AIM_TYPE.FALSE)
-                    m_eMove_Type = Set_PlayerMoveType(E_MOVE_TYPE.P_WALK);
+                    m_eMove_Type = Set_PlayerMoveType(E_PLAYER_MOVE_TYPE.P_WALK);
                 else if (m_eAim_Type == E_AIM_TYPE.TRUE)
-                    m_eMove_Type = Set_PlayerMoveType(E_MOVE_TYPE.P_WALK_AIM);
+                    m_eMove_Type = Set_PlayerMoveType(E_PLAYER_MOVE_TYPE.P_WALK_AIM);
 
                 this.transform.position += (m_g_Dir_Back.transform.position - this.transform.position).normalized * Time.deltaTime * m_fSpeed_Walk;
             }
@@ -275,15 +295,15 @@ public partial class Player : MonoBehaviour
         {
             //if (m_bInput_GetKey_Shift == true)
             //{
-            //    m_eMove_Type = Set_PlayerMoveType(E_MOVE_TYPE.P_RUN);
+            //    m_eMove_Type = Set_PlayerMoveType(E_PLAYER_MOVE_TYPE.P_RUN);
             //    this.transform.position += ((m_g_Dir_Back.transform.position + m_g_Dir_Left.transform.position) / 2 - this.transform.position).normalized * Time.deltaTime * m_fSpeed_Run * 0.75f;
             //}
             //else
             {
                 if (m_eAim_Type == E_AIM_TYPE.FALSE)
-                    m_eMove_Type = Set_PlayerMoveType(E_MOVE_TYPE.P_WALK_LEFT);
+                    m_eMove_Type = Set_PlayerMoveType(E_PLAYER_MOVE_TYPE.P_WALK_LEFT);
                 else if (m_eAim_Type == E_AIM_TYPE.TRUE)
-                    m_eMove_Type = Set_PlayerMoveType(E_MOVE_TYPE.P_WALK_LEFT_AIM);
+                    m_eMove_Type = Set_PlayerMoveType(E_PLAYER_MOVE_TYPE.P_WALK_LEFT_AIM);
 
                 this.transform.position += ((m_g_Dir_Back.transform.position + m_g_Dir_Left.transform.position) / 2 - this.transform.position).normalized * Time.deltaTime * m_fSpeed_Walk * 0.75f;
             }
@@ -293,18 +313,18 @@ public partial class Player : MonoBehaviour
             if (m_bInput_GetKey_Shift == true)
             {
                 if (m_eAim_Type == E_AIM_TYPE.FALSE)
-                    m_eMove_Type = Set_PlayerMoveType(E_MOVE_TYPE.P_RUN);
+                    m_eMove_Type = Set_PlayerMoveType(E_PLAYER_MOVE_TYPE.P_RUN);
                 else if (m_eAim_Type == E_AIM_TYPE.TRUE)
-                    m_eMove_Type = Set_PlayerMoveType(E_MOVE_TYPE.P_RUN_AIM);
+                    m_eMove_Type = Set_PlayerMoveType(E_PLAYER_MOVE_TYPE.P_RUN_AIM);
 
                 this.transform.position += (m_g_Dir_Left.transform.position - this.transform.position).normalized * Time.deltaTime * m_fSpeed_Run;
             }
             else
             {
                 if (m_eAim_Type == E_AIM_TYPE.FALSE)
-                    m_eMove_Type = Set_PlayerMoveType(E_MOVE_TYPE.P_WALK_LEFT);
+                    m_eMove_Type = Set_PlayerMoveType(E_PLAYER_MOVE_TYPE.P_WALK_LEFT);
                 else if (m_eAim_Type == E_AIM_TYPE.TRUE)
-                    m_eMove_Type = Set_PlayerMoveType(E_MOVE_TYPE.P_WALK_LEFT_AIM);
+                    m_eMove_Type = Set_PlayerMoveType(E_PLAYER_MOVE_TYPE.P_WALK_LEFT_AIM);
 
                 this.transform.position += (m_g_Dir_Left.transform.position - this.transform.position).normalized * Time.deltaTime * m_fSpeed_Walk;
             }
@@ -314,18 +334,18 @@ public partial class Player : MonoBehaviour
             if (m_bInput_GetKey_Shift == true)
             {
                 if (m_eAim_Type == E_AIM_TYPE.FALSE)
-                    m_eMove_Type = Set_PlayerMoveType(E_MOVE_TYPE.P_RUN);
+                    m_eMove_Type = Set_PlayerMoveType(E_PLAYER_MOVE_TYPE.P_RUN);
                 else if (m_eAim_Type == E_AIM_TYPE.TRUE)
-                    m_eMove_Type = Set_PlayerMoveType(E_MOVE_TYPE.P_RUN_AIM);
+                    m_eMove_Type = Set_PlayerMoveType(E_PLAYER_MOVE_TYPE.P_RUN_AIM);
 
                 this.transform.position += ((m_g_Dir_Front.transform.position + m_g_Dir_Left.transform.position) / 2 - this.transform.position).normalized * Time.deltaTime * m_fSpeed_Run * 0.75f;
             }
             else
             {
                 if (m_eAim_Type == E_AIM_TYPE.FALSE)
-                    m_eMove_Type = Set_PlayerMoveType(E_MOVE_TYPE.P_WALK_LEFT);
+                    m_eMove_Type = Set_PlayerMoveType(E_PLAYER_MOVE_TYPE.P_WALK_LEFT);
                 else if  (m_eAim_Type == E_AIM_TYPE.TRUE)
-                    m_eMove_Type = Set_PlayerMoveType(E_MOVE_TYPE.P_WALK_LEFT_AIM);
+                    m_eMove_Type = Set_PlayerMoveType(E_PLAYER_MOVE_TYPE.P_WALK_LEFT_AIM);
 
                 this.transform.position += ((m_g_Dir_Front.transform.position + m_g_Dir_Left.transform.position) / 2 - this.transform.position).normalized * Time.deltaTime * m_fSpeed_Walk * 0.75f;
             }
@@ -333,9 +353,9 @@ public partial class Player : MonoBehaviour
         if (m_eCoordinate_z_Move_Value == E_MOVE_VALUE.V_ZERO && m_eCoordinate_x_Move_Value == E_MOVE_VALUE.V_ZERO)
         {
             if (m_eAim_Type == E_AIM_TYPE.FALSE)
-                m_eMove_Type = Set_PlayerMoveType(E_MOVE_TYPE.P_IDLE);
+                m_eMove_Type = Set_PlayerMoveType(E_PLAYER_MOVE_TYPE.P_IDLE);
             else if (m_eAim_Type == E_AIM_TYPE.TRUE)
-                m_eMove_Type = Set_PlayerMoveType(E_MOVE_TYPE.P_IDLE_AIM);
+                m_eMove_Type = Set_PlayerMoveType(E_PLAYER_MOVE_TYPE.P_IDLE_AIM);
         }
     }
     void Player_Move_Check_Collider()

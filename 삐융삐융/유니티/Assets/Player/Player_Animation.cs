@@ -20,27 +20,27 @@ public partial class Player : MonoBehaviour
     }
 
     // 플레이어 애니메이션 변경 함수
-    private E_MOVE_TYPE Set_PlayerMoveType(E_MOVE_TYPE emt)
+    private E_PLAYER_MOVE_TYPE Set_PlayerMoveType(E_PLAYER_MOVE_TYPE emt)
     {
         if (m_eMove_Type != emt)
         {
             switch (emt)
             {
-                case E_MOVE_TYPE.P_IDLE:
+                case E_PLAYER_MOVE_TYPE.P_IDLE:
                     {
                         Set_m_Player_Rifle_Animator_Parameters(emt.ToString(), m_eMove_Type.ToString());
                         Set_Rifle_K2_Animator_Parameters("K2_Idle", 0);
                         //float startingtime = m_Animator_Player_Rifle.GetCurrentAnimatorStateInfo(0).normalizedTime;
                     }
                     break;
-                case E_MOVE_TYPE.P_IDLE_AIM:
+                case E_PLAYER_MOVE_TYPE.P_IDLE_AIM:
                     {
                         Set_m_Player_Rifle_Animator_Parameters(emt.ToString(), m_eMove_Type.ToString());
                         Set_Rifle_K2_Animator_Parameters("K2_Idle_Aim", 0);
                         //float startingtime = m_Animator_Player_Rifle.GetCurrentAnimatorStateInfo(0).normalizedTime;
                     }
                     break;
-                case E_MOVE_TYPE.P_WALK:
+                case E_PLAYER_MOVE_TYPE.P_WALK:
                     {
                         if (m_eAim_Type == E_AIM_TYPE.FALSE)
                         {
@@ -49,14 +49,14 @@ public partial class Player : MonoBehaviour
                         }
                     }
                     break;
-                case E_MOVE_TYPE.P_WALK_AIM:
+                case E_PLAYER_MOVE_TYPE.P_WALK_AIM:
                     {
                         Set_m_Player_Rifle_Animator_Parameters(emt.ToString(), m_eMove_Type.ToString());
                         //Set_Rifle_K2_Animator_Parameters("K2_Walk_Aim", 0);
                         m_Animator_Rifle_K2.Play("K2_Walk_Aim");
                     }
                     break;
-                case E_MOVE_TYPE.P_WALK_LEFT:
+                case E_PLAYER_MOVE_TYPE.P_WALK_LEFT:
                     {
                         if (m_eAim_Type == E_AIM_TYPE.FALSE)
                         {
@@ -65,13 +65,13 @@ public partial class Player : MonoBehaviour
                         }
                     }
                     break;
-                case E_MOVE_TYPE.P_WALK_LEFT_AIM:
+                case E_PLAYER_MOVE_TYPE.P_WALK_LEFT_AIM:
                     {
                         Set_m_Player_Rifle_Animator_Parameters(emt.ToString(), m_eMove_Type.ToString());
                         Set_Rifle_K2_Animator_Parameters("K2_Walk_Left_Aim", 0);
                     }
                     break;
-                case E_MOVE_TYPE.P_WALK_RIGHT:
+                case E_PLAYER_MOVE_TYPE.P_WALK_RIGHT:
                     {
                         if (m_eAim_Type == E_AIM_TYPE.FALSE)
                         {
@@ -80,13 +80,13 @@ public partial class Player : MonoBehaviour
                         }
                     }
                     break;
-                case E_MOVE_TYPE.P_WALK_RIGHT_AIM:
+                case E_PLAYER_MOVE_TYPE.P_WALK_RIGHT_AIM:
                     {
                         Set_m_Player_Rifle_Animator_Parameters(emt.ToString(), m_eMove_Type.ToString());
                         Set_Rifle_K2_Animator_Parameters("K2_Walk_Right_Aim", 0);
                     }
                     break;
-                case E_MOVE_TYPE.P_RUN:
+                case E_PLAYER_MOVE_TYPE.P_RUN:
                     {
                         if (m_eAim_Type == E_AIM_TYPE.FALSE)
                         {
@@ -95,25 +95,25 @@ public partial class Player : MonoBehaviour
                         }
                     }
                     break;
-                case E_MOVE_TYPE.P_RUN_AIM:
+                case E_PLAYER_MOVE_TYPE.P_RUN_AIM:
                     {
                         Set_m_Player_Rifle_Animator_Parameters(emt.ToString(), m_eMove_Type.ToString());
                         Set_Rifle_K2_Animator_Parameters("K2_Run_Aim", 0);
                     }
                     break;
-                case E_MOVE_TYPE.P_PUSH:
+                case E_PLAYER_MOVE_TYPE.P_PUSH:
                     {
                         Set_m_Player_Rifle_Animator_Parameters(emt.ToString(), m_eMove_Type.ToString());
                         Set_Rifle_K2_Animator_Parameters("K2_Push", 0);
                     }
                     break;
-                    //case E_MOVE_TYPE.P_JUMP:
+                    //case E_PLAYER_MOVE_TYPE.P_JUMP:
                     //    {
                     //        Set_PlayerAnimator_Parameters(emt.ToString(), m_eMove_Type.ToString());
                     //        Set_Rifle_K2_Animator_Parameters("K2_Jump", 0);
                     //    }
                     //    break;
-                    //case E_MOVE_TYPE.P_PUSH:
+                    //case E_PLAYER_MOVE_TYPE.P_PUSH:
                     //    {
                     //        Set_PlayerAnimator_Parameters(emt.ToString(), m_eMove_Type.ToString());
                     //        Set_Rifle_K2_Animator_Parameters("K2_Push", 0);
@@ -138,16 +138,10 @@ public partial class Player : MonoBehaviour
         m_Animator_Rifle_K2.Play(sparameter, 0, fstarttime);
     }
 
-    // 플레이어 푸시 동작 시전 중 몹 밀려나는 함수
-    private int Check_Player_Push()
-    {
-        return 0;
-    }
-
     // 플레이어 푸쉬 해제
     private void End_Player_Push()
     {
-        m_eMove_Type = Set_PlayerMoveType(E_MOVE_TYPE.P_IDLE);
+        m_eMove_Type = Set_PlayerMoveType(E_PLAYER_MOVE_TYPE.P_IDLE);
     }
     // 플레이어 점프 해제
 }

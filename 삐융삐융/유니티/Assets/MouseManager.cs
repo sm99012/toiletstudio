@@ -16,6 +16,7 @@ public class MouseManager : MonoBehaviour
 
     public float m_fSensitivity_x; // 마우스 감도
     public float m_fSensitivity_y; // 마우스 감도
+
     private void Awake()
     {
         m_nCenter_Coordinate_x = Screen.width / 2;
